@@ -73,7 +73,7 @@ ErrorOr<ByteBuffer> Stream::read_all_impl(size_t block_size, size_t expected_fil
     return data;
 }
 
-bool Stream::write_or_error(ReadonlyBytes buffer)
+ErrorOr<void> Stream::write_all(ReadonlyBytes buffer)
 {
     VERIFY(buffer.size());
 
@@ -85,13 +85,13 @@ bool Stream::write_or_error(ReadonlyBytes buffer)
                 continue;
             }
 
-            return false;
+            return result.error();
         }
 
         nwritten += result.value();
     } while (nwritten < buffer.size());
 
-    return true;
+    return {};
 }
 
 ErrorOr<off_t> SeekableStream::tell() const
