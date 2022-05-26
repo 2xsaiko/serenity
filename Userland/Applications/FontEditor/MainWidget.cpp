@@ -36,6 +36,7 @@
 #include <LibGUI/TextBox.h>
 #include <LibGUI/ToolbarContainer.h>
 #include <LibGUI/Window.h>
+#include <LibGfx/Font/BDFWriter.h>
 #include <LibGfx/Font/BitmapFont.h>
 #include <LibGfx/Font/Emoji.h>
 #include <LibGfx/Font/FontStyleMapping.h>
@@ -131,6 +132,19 @@ ErrorOr<void> MainWidget::create_actions()
             return;
         if (auto result = save_file(save_path.value()); result.is_error())
             show_error("Failed to save font"sv, result.error());
+    });
+
+    m_export_action = GUI::Action::create("&Export BDF...", [&](auto&) {
+        LexicalPath lexical_path(m_path.is_empty() ? "Untitled.bdf" : String::formatted("{}.bdf", LexicalPath::basename(m_path)));
+        Optional<String> save_path = GUI::FilePicker::get_save_filepath(window(), lexical_path.title(), lexical_path.extension());
+        if (!save_path.has_value())
+            return;
+
+        auto result = Gfx::write_bdf(save_path.value(), *m_edited_font);
+
+        if (result.is_error()) {
+            GUI::MessageBox::show(window(), "The font file could not be saved."sv, "Export failed"sv, GUI::MessageBox::Type::Error);
+        }
     });
 
     m_cut_action = GUI::CommonActions::make_cut_action([&](auto&) {
@@ -628,6 +642,8 @@ ErrorOr<void> MainWidget::initialize_menubar(GUI::Window& window)
     TRY(file_menu->try_add_action(*m_open_action));
     TRY(file_menu->try_add_action(*m_save_action));
     TRY(file_menu->try_add_action(*m_save_as_action));
+    TRY(file_menu->try_add_separator());
+    TRY(file_menu->try_add_action(*m_export_action));
     TRY(file_menu->try_add_separator());
     TRY(file_menu->try_add_action(GUI::CommonActions::make_quit_action([this](auto&) {
         if (!request_close())
