@@ -113,8 +113,6 @@ static ErrorOr<void> write_font_header(Core::Stream::Stream& stream, BitmapFont 
     char const* charset_encoding = "1";
 
     int line_gap = font.preferred_line_height() - font.glyph_height();
-    int top_gap = line_gap / 2;
-    int bottom_gap = line_gap - top_gap;
 
     int descent = font.glyph_height() - font.baseline();
     int yoff = 1 - descent;
@@ -157,8 +155,8 @@ static ErrorOr<void> write_font_header(Core::Stream::Stream& stream, BitmapFont 
     TRY(writeln(stream, "AVERAGE_WIDTH {}", average_width));
     TRY(writeln(stream, "CHARSET_REGISTRY \"{}\"", charset_registry));
     TRY(writeln(stream, "CHARSET_ENCODING \"{}\"", charset_encoding));
-    TRY(writeln(stream, "FONT_ASCENT {}", font.baseline() + top_gap));
-    TRY(writeln(stream, "FONT_DESCENT {}", descent + bottom_gap));
+    TRY(writeln(stream, "FONT_ASCENT {}", font.baseline() + line_gap));
+    TRY(writeln(stream, "FONT_DESCENT {}", descent));
     TRY(writeln(stream, "X_HEIGHT {}", font.x_height()));
     TRY(writeln(stream, "DEFAULT_CHAR {}", 65533));
     TRY(writeln(stream, "ENDPROPERTIES"));
