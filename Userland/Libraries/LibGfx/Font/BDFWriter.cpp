@@ -54,10 +54,10 @@ ErrorOr<void> write_bdf(Core::Stream::Stream& stream, BitmapFont const& font)
     size_t actual_chars = 0;
 
     for (size_t i = 0; i < font.glyph_count(); i += 1) {
-        if (font.raw_glyph_width(i) == 0)
+        if (font.glyph_width_at(i) == 0)
             continue; // unset
 
-        Glyph const& g = font.raw_glyph(i);
+        Glyph const& g = font.glyph_at(i);
 
         if (!g.is_glyph_bitmap())
             continue; // this is a color one, don't export it for now
@@ -68,10 +68,10 @@ ErrorOr<void> write_bdf(Core::Stream::Stream& stream, BitmapFont const& font)
     TRY(writeln(stream, "CHARS {}", actual_chars));
 
     for (size_t i = 0; i < font.glyph_count(); i += 1) {
-        if (font.raw_glyph_width(i) == 0)
+        if (font.glyph_width_at(i) == 0)
             continue; // unset
 
-        Glyph const& g = font.raw_glyph(i);
+        Glyph const& g = font.glyph_at(i);
 
         if (!g.is_glyph_bitmap())
             continue; // this is a color one, don't export it for now
@@ -169,11 +169,11 @@ static ErrorOr<void> write_glyph_data(Core::Stream::Stream& stream, BitmapFont c
     int descent = font.glyph_height() - font.baseline();
     int yoff = 1 - descent;
 
-    u32 code_point = index; // TODO: this is not correct but who cares right now
+    u32 code_point = font.index_to_codepoint(index);
     TRY(writeln(stream, "STARTCHAR U+{:04X}", code_point));
     TRY(writeln(stream, "ENCODING {}", code_point));
 
-    u8 width = font.is_fixed_width() ? font.glyph_fixed_width() : font.raw_glyph_width(index);
+    u8 width = font.is_fixed_width() ? font.glyph_fixed_width() : font.glyph_width_at(index);
 
     TRY(writeln(stream, "SWIDTH {} {}", (width + font.glyph_spacing()) * 1000 / (int)font.point_size(), 0));
     TRY(writeln(stream, "DWIDTH {} {}", (width + font.glyph_spacing()), 0));
@@ -181,7 +181,7 @@ static ErrorOr<void> write_glyph_data(Core::Stream::Stream& stream, BitmapFont c
     TRY(writeln(stream, "BBX {} {} {} {}", width, font.glyph_height(), 0, yoff));
     TRY(writeln(stream, "BITMAP"));
 
-    Glyph const& g = font.raw_glyph(index);
+    Glyph const& g = font.glyph_at(index);
 
     for (int y = 0; y < font.glyph_height(); y += 1) {
         for (int x_chunk = 0; x_chunk < (width + 7) / 8; x_chunk += 1) {
