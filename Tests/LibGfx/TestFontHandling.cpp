@@ -142,13 +142,13 @@ TEST_CASE(test_character_set_masking)
 
     auto unmasked_font = font.value()->unmasked_character_set();
     EXPECT(!unmasked_font.is_error());
-    EXPECT(unmasked_font.value()->glyph_index(0x0041).value() == 0x0041);
-    EXPECT(unmasked_font.value()->glyph_index(0x0100).value() == 0x0100);
-    EXPECT(unmasked_font.value()->glyph_index(0xFFFD).value() == 0xFFFD);
+    EXPECT(unmasked_font.value()->raw_glyph_index(0x0041).value() == 0x0041);
+    EXPECT(unmasked_font.value()->raw_glyph_index(0x0100).value() == 0x0100);
+    EXPECT(unmasked_font.value()->raw_glyph_index(0xFFFD).value() == 0xFFFD);
 
     auto masked_font = unmasked_font.value()->masked_character_set();
     EXPECT(!masked_font.is_error());
-    EXPECT(masked_font.value()->glyph_index(0x0041).value() == 0x0041);
-    EXPECT(!masked_font.value()->glyph_index(0x0100).has_value());
-    EXPECT(masked_font.value()->glyph_index(0xFFFD).value() == 0x1FD);
+    EXPECT(masked_font.value()->raw_glyph_index(0x0041).value() == 0x0041);
+    EXPECT(!masked_font.value()->raw_glyph_index(0x0100).has_value());
+    EXPECT(masked_font.value()->raw_glyph_index(0xFFFD).value() == 0x1FD);
 }
