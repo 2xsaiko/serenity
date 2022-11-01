@@ -52,10 +52,14 @@ if [ "$(uname -s)" = "Darwin" ]; then
 elif [ "$(uname -s)" = "SerenityOS" ]; then
     E2FSCK="/usr/local/sbin/e2fsck"
 else
-    E2FSCK="/usr/sbin/e2fsck"
+    if command -v e2fsck > /dev/null 2>&1; then
+        E2FSCK=e2fsck
+    else
+        E2FSCK="/usr/sbin/e2fsck"
 
-    if [ ! -f "$E2FSCK" ]; then
-        E2FSCK=/sbin/e2fsck
+        if [ ! -f "$E2FSCK" ]; then
+            E2FSCK=/sbin/e2fsck
+        fi
     fi
 fi
 
