@@ -26,6 +26,9 @@ stdenv.mkDerivation {
     xlibsWrapper
     qemu
     e2fsprogs
+    # Other tools used in the repository
+    pre-commit
+    shellcheck
   ];
 
   hardeningDisable = [ "format" "fortify" ];
